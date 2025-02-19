@@ -6,7 +6,32 @@
 content="width=device-width, initialscale=1.0">
 <title>DOM Project</title>
 <link rel="stylesheet" href="style.css">
+<img src="logo.png" alt="Website Logo" class="logo">
 </head>
 <body>
+    <form id="inputForm">
+        <label for="Bookname">Name:</label>
+        <input type="text" id="Bookname" name="Bookname" required>
+
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" required>
+
+        <label for="author">Author:</label>
+        <input type="text" id="author" name="author" required>
+
+        <button type="submit">Add a book </button>
+    </form>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Title </th>
+                <th>Author </th>
+            </tr>
+        </thead>
+        <tbody id="dataTable">
+        </tbody>
+    </table>
+    <script src="script.js"></script>
 </body>
 </html>
