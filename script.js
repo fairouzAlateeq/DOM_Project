@@ -1,8 +1,9 @@
+
 document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("inputForm");
     const tableBody = document.getElementById("dataTable");
 
-    // NEW CODE: Fetch and display books when the page loads (Step 3)
+    // Fetch and display books when the page loads
     fetchAndDisplayBooks();
 
     form.addEventListener("submit", async function (event) {
@@ -28,12 +29,13 @@ document.addEventListener("DOMContentLoaded", function () {
             row.remove();
         });
 
-        // NEW CODE: Send a POST request to the API (Step 2)
+        // Send a POST request to the API
         try {
-            const response = await fetch('https://bookstore-api-six.vercel.app/books', {
+            const response = await fetch('https://bookstore-api-six.vercel.app/api/books', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'API-Key': apiKey
                 },
                 body: JSON.stringify({ title, author, publisher }),
             });
@@ -42,7 +44,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 throw new Error('Failed to add book');
             }
 
-            // NEW CODE: Fetch and display books again to sync with the API (Step 3)
+            // Fetch and display books again to sync with the API
             fetchAndDisplayBooks();
         } catch (error) {
             console.error('Error adding book:', error);
@@ -53,11 +55,16 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-// NEW CODE: Function to fetch and display books from the API (Step 3)
+// Function to fetch and display books from the API
 async function fetchAndDisplayBooks() {
     try {
         // Fetch books from the API
-        const response = await fetch('https://bookstore-api-six.vercel.app/books');
+        const response = await fetch('https://bookstore-api-six.vercel.app/api/books', {
+            headers: {
+                'API-Key': apiKey // Use the API key from environment variables
+            }
+        });
+
         if (!response.ok) {
             throw new Error('Failed to fetch books');
         }
@@ -74,47 +81,33 @@ async function fetchAndDisplayBooks() {
         // Loop through the books and create table rows
         books.forEach(book => {
             const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${book.title}</td>
+                <td>${book.author}</td>
+                <td>${book.publisher}</td>
+                <td><button class="delete-btn">Delete</button></td>
+            `;
+            tableBody.appendChild(row);
 
-            // Create and append table cells for each book property
-            const titleCell = document.createElement('td');
-            titleCell.textContent = book.title;
-            row.appendChild(titleCell);
-
-            const authorCell = document.createElement('td');
-            authorCell.textContent = book.author;
-            row.appendChild(authorCell);
-
-            const publisherCell = document.createElement('td');
-            publisherCell.textContent = book.publisher;
-            row.appendChild(publisherCell);
-
-            // NEW CODE: Add a delete button for each book (Step 4)
-            const deleteCell = document.createElement('td');
-            const deleteButton = document.createElement('button');
-            deleteButton.textContent = 'Delete';
-            deleteButton.classList.add('delete-btn');
-            deleteButton.addEventListener('click', async () => {
+            row.querySelector('.delete-btn').addEventListener('click', async () => {
                 try {
-                    // NEW CODE: Send a DELETE request to the API
-                    const deleteResponse = await fetch(`https://bookstore-api-six.vercel.app/books/${book.id}`, {
+                    // Send a DELETE request to the API
+                    const deleteResponse = await fetch(`https://bookstore-api-six.vercel.app/api/books/${book.id}`, {
                         method: 'DELETE',
+                        headers: {
+                            'API-Key': apiKey
+                        }
                     });
 
                     if (!deleteResponse.ok) {
                         throw new Error('Failed to delete book');
                     }
 
-                    // OLD CODE: Remove the row from the table (local DOM manipulation)
                     row.remove();
                 } catch (error) {
                     console.error('Error deleting book:', error);
                 }
             });
-            deleteCell.appendChild(deleteButton);
-            row.appendChild(deleteCell);
-
-            // Append the row to the table body
-            tableBody.appendChild(row);
         });
     } catch (error) {
         console.error('Error fetching or displaying books:', error);
